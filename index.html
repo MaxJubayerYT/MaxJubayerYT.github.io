@@ -4,620 +4,564 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>MaxJubayerYT</title>
-  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=IBM+Plex+Mono:wght@300;400;500&family=Archivo:wght@400;500&display=swap" rel="stylesheet" />
   <style>
     :root {
-      --bg: #0a0a0f;
-      --border: #1e1e2e;
-      --accent: #00eaff;
-      --text: #e8e8f0;
-      --muted: #6b6b80;
-      --card: #13131c;
+      --bg:       #0c0b09;
+      --surface:  #141210;
+      --border:   #252118;
+      --copper:   #62c1e5;
+      --copper-dim: #20a7db;
+      --text:     #ede8e0;
+      --muted:    #7a6f62;
+      --dim:      #3a342c;
     }
 
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    html { scroll-behavior: smooth; }
+    html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; }
 
     body {
       background: var(--bg);
       color: var(--text);
-      font-family: 'DM Mono', monospace;
+      font-family: 'IBM Plex Mono', monospace;
       min-height: 100vh;
       overflow-x: hidden;
+      padding: 0 16px;
     }
 
+    /* subtle noise grain */
     body::before {
       content: '';
       position: fixed;
       inset: 0;
-      background-image:
-        linear-gradient(rgba(0,234,255,0.025) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(0,234,255,0.025) 1px, transparent 1px);
-      background-size: 60px 60px;
+      opacity: 0.03;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+      background-size: 200px 200px;
       pointer-events: none;
       z-index: 0;
     }
 
-    body::after {
-      content: '';
-      position: fixed;
-      top: -220px;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 700px;
-      height: 700px;
-      background: radial-gradient(circle, rgba(0,234,255,0.10) 0%, transparent 70%);
-      pointer-events: none;
-      z-index: 0;
-      animation: pulse 6s ease-in-out infinite;
-    }
-
-    @keyframes pulse {
-      0%, 100% { opacity: 0.5; transform: translateX(-50%) scale(1); }
-      50%       { opacity: 1;   transform: translateX(-50%) scale(1.08); }
-    }
-
-    .container {
-      max-width: 860px;
+    .wrap {
+      max-width: 720px;
       margin: 0 auto;
-      padding: 0 24px;
       position: relative;
       z-index: 1;
     }
 
-    /* HERO */
+    /* ── HERO ── */
     .hero {
-      padding: 100px 0 60px;
-      text-align: center;
-      animation: fadeUp 0.7s ease both;
+      padding: 64px 0 48px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
     }
 
-    @keyframes fadeUp {
-      from { opacity: 0; transform: translateY(28px); }
-      to   { opacity: 1; transform: translateY(0); }
+    .hero-top {
+      display: flex;
+      align-items: center;
+      gap: 20px;
     }
-
-    .avatar-ring {
-      display: inline-block;
-      position: relative;
-      margin-bottom: 28px;
-    }
-
-    .avatar-ring::before {
-      content: '';
-      position: absolute;
-      inset: -4px;
-      border-radius: 50%;
-      background: conic-gradient(from 0deg, var(--accent), #fff, var(--accent), transparent);
-      animation: spin 4s linear infinite;
-      z-index: -1;
-    }
-
-    @keyframes spin { to { transform: rotate(360deg); } }
 
     .avatar {
-      width: 120px;
-      height: 120px;
-      border-radius: 50%;
-      border: 3px solid var(--bg);
+      width: 72px;
+      height: 72px;
+      border-radius: 6px;
       overflow: hidden;
-      background: #000;
-      position: relative;
-      z-index: 1;
+      flex-shrink: 0;
+      border: 1px solid var(--border);
     }
 
     .avatar img { width: 100%; height: 100%; object-fit: cover; display: block; }
 
-    .status-dot {
-      position: absolute;
-      bottom: 8px;
-      right: 8px;
-      width: 14px;
-      height: 14px;
-      background: #22c55e;
-      border-radius: 50%;
-      border: 2px solid var(--bg);
-      animation: blink 2s ease-in-out infinite;
-    }
+    .hero-meta { flex: 1; min-width: 0; }
 
-    @keyframes blink {
-      0%, 100% { box-shadow: 0 0 0 0 rgba(34,197,94,0.6); }
-      50%       { box-shadow: 0 0 0 6px rgba(34,197,94,0); }
-    }
-
-    .hero h1 {
-      font-family: 'Syne', sans-serif;
-      font-size: clamp(2.4rem, 6vw, 3.8rem);
-      font-weight: 800;
-      letter-spacing: -0.02em;
+    .hero-meta h1 {
+      font-family: 'Archivo Black', sans-serif;
+      font-size: clamp(1.9rem, 7vw, 3rem);
+      font-weight: 900;
+      letter-spacing: -0.01em;
       line-height: 1;
-      margin-bottom: 12px;
+      color: var(--text);
     }
 
-    .hero h1 span {
-      background: linear-gradient(90deg, var(--accent), #fff);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
+    .hero-meta h1 em {
+      font-style: normal;
+      color: var(--copper);
     }
 
-    .tagline {
-      font-size: 0.82rem;
+    .role-line {
+      margin-top: 6px;
+      font-size: 0.72rem;
       color: var(--muted);
-      letter-spacing: 0.12em;
+      letter-spacing: 0.1em;
       text-transform: uppercase;
-      margin-bottom: 18px;
+    }
+
+    .online-dot {
+      display: inline-block;
+      width: 7px;
+      height: 7px;
+      background: #4ade80;
+      border-radius: 50%;
+      margin-right: 6px;
+      vertical-align: middle;
+      animation: breathe 2.4s ease-in-out infinite;
+    }
+
+    @keyframes breathe {
+      0%,100% { opacity: 1; }
+      50%      { opacity: 0.35; }
     }
 
     .bio {
-      font-size: 0.94rem;
-      color: #9090a8;
-      max-width: 520px;
-      margin: 0 auto 30px;
-      line-height: 1.85;
-    }
-
-    .badges {
-      display: flex;
-      gap: 10px;
-      justify-content: center;
-      flex-wrap: wrap;
-    }
-
-    .badge {
-      font-size: 0.72rem;
-      padding: 5px 12px;
-      border-radius: 999px;
-      border: 1px solid var(--border);
+      font-size: 0.88rem;
       color: var(--muted);
-      letter-spacing: 0.08em;
-      background: var(--card);
+      line-height: 1.9;
+      max-width: 560px;
+      font-family: 'Archivo', sans-serif;
+      font-weight: 400;
+    }
+
+    .tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .tag {
+      font-size: 0.68rem;
+      font-family: 'IBM Plex Mono', monospace;
+      padding: 4px 10px;
+      border: 1px solid var(--dim);
+      border-radius: 3px;
+      color: var(--muted);
+      letter-spacing: 0.06em;
       text-transform: uppercase;
     }
 
-    .badge.live {
-      border-color: rgba(0,234,255,0.4);
-      color: var(--accent);
-      background: rgba(0,234,255,0.07);
+    /* ── RULE ── */
+    .rule {
+      border: none;
+      border-top: 1px solid var(--border);
+      margin: 4px 0;
     }
 
-    /* SECTIONS */
-    section { padding: 46px 0; }
+    /* ── SECTION ── */
+    .sec { padding: 32px 0; }
 
-    .section-label {
-      font-size: 0.72rem;
-      letter-spacing: 0.2em;
+    .sec-head {
+      font-size: 0.65rem;
+      letter-spacing: 0.22em;
       text-transform: uppercase;
-      color: var(--accent);
-      margin-bottom: 18px;
+      color: var(--copper);
+      font-family: 'IBM Plex Mono', monospace;
+      margin-bottom: 20px;
+    }
+
+    /* ── FEATURED ── */
+    .feat {
       display: flex;
       align-items: center;
-      gap: 10px;
-    }
-
-    .section-label::after {
-      content: '';
-      flex: 1;
-      height: 1px;
-      background: var(--border);
-    }
-
-    /* FEATURED */
-    .featured-card {
-      background: var(--card);
+      gap: 18px;
+      padding: 20px;
+      background: var(--surface);
       border: 1px solid var(--border);
-      border-radius: 16px;
-      padding: 26px 30px;
-      display: flex;
-      align-items: center;
-      gap: 22px;
+      border-radius: 8px;
       text-decoration: none;
       color: inherit;
-      transition: all 0.22s ease;
-      position: relative;
-      overflow: hidden;
+      transition: border-color 0.18s, background 0.18s;
     }
 
-    .featured-card::before {
-      content: '';
-      position: absolute;
-      inset: 0;
-      background: linear-gradient(135deg, rgba(0,234,255,0.05), transparent);
-      opacity: 0;
-      transition: opacity 0.22s;
+    .feat:hover {
+      border-color: var(--copper-dim);
+      background: #181410;
     }
 
-    .featured-card:hover::before { opacity: 1; }
-    .featured-card:hover {
-      border-color: rgba(0,234,255,0.38);
-      transform: translateY(-2px);
-      box-shadow: 0 12px 36px rgba(0,234,255,0.08);
-    }
-
-    .featured-icon {
-      width: 60px;
-      height: 60px;
-      background: rgba(0,234,255,0.08);
-      border-radius: 12px;
+    .feat-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: 6px;
+      background: rgba(212,130,74,0.1);
+      border: 1px solid rgba(212,130,74,0.18);
       display: flex;
       align-items: center;
       justify-content: center;
       flex-shrink: 0;
     }
 
-    .featured-icon img { width: 28px; height: 28px; }
+    .feat-icon img { width: 26px; height: 26px; }
 
-    .featured-info h3 {
-      font-family: 'Syne', sans-serif;
-      font-size: 1.1rem;
-      font-weight: 700;
-      margin-bottom: 4px;
+    .feat-body { flex: 1; min-width: 0; }
+
+    .feat-body h3 {
+      font-family: 'Archivo Black', sans-serif;
+      font-size: 1rem;
+      font-weight: 900;
+      margin-bottom: 3px;
     }
 
-    .featured-info p { font-size: 0.81rem; color: var(--muted); line-height: 1.6; }
-
-    .featured-arrow {
-      margin-left: auto;
-      font-size: 1.3rem;
+    .feat-body p {
+      font-size: 0.78rem;
       color: var(--muted);
-      transition: transform 0.18s, color 0.18s;
+      font-family: 'Archivo', sans-serif;
+      line-height: 1.6;
     }
 
-    .featured-card:hover .featured-arrow { transform: translateX(5px); color: var(--accent); }
+    .feat-arrow {
+      font-size: 1rem;
+      color: var(--dim);
+      flex-shrink: 0;
+      transition: transform 0.16s, color 0.16s;
+    }
 
-    /* LINKS GRID */
-    .links-grid {
+    .feat:hover .feat-arrow {
+      transform: translateX(4px);
+      color: var(--copper);
+    }
+
+    /* ── LINKS GRID ── */
+    .grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-      gap: 10px;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
     }
 
-    .link-card {
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 13px 17px;
-      text-decoration: none;
-      color: inherit;
+    @media (max-width: 480px) {
+      .grid { grid-template-columns: 1fr; }
+    }
+
+    .card {
       display: flex;
       align-items: center;
       gap: 13px;
-      transition: all 0.18s ease;
+      padding: 13px 14px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 7px;
+      text-decoration: none;
+      color: inherit;
+      transition: border-color 0.16s, background 0.16s;
+      min-height: 56px; /* accessible touch target */
+      overflow: hidden;
     }
 
-    .link-card:hover {
-      border-color: rgba(0,234,255,0.28);
-      background: rgba(0,234,255,0.04);
-      transform: translateY(-1px);
+    .card:hover {
+      border-color: var(--dim);
+      background: #161310;
     }
 
-    .link-icon {
-      width: 38px;
-      height: 38px;
-      border-radius: 9px;
+    .card:active { opacity: 0.75; }
+
+    .icon {
+      width: 34px;
+      height: 34px;
+      border-radius: 7px;
       display: flex;
       align-items: center;
       justify-content: center;
       flex-shrink: 0;
     }
 
-    .link-icon img  { width: 20px; height: 20px; }
-    .link-icon svg  { width: 20px; height: 20px; }
+    .icon img, .icon svg { width: 18px; height: 18px; display: block; }
 
-    /* per-brand bg tints */
-    .li-yt       { background: rgba(255,0,0,0.14); }
-    .li-twitch   { background: rgba(145,71,255,0.14); }
-    .li-tiktok   { background: rgba(255,255,255,0.07); }
-    .li-patreon  { background: rgba(255,66,77,0.14); }
-    .li-x        { background: rgba(255,255,255,0.07); }
-    .li-bsky     { background: rgba(0,133,255,0.14); }
-    .li-ig       { background: rgba(225,48,108,0.14); }
-    .li-discord  { background: rgba(88,101,242,0.14); }
-    .li-reddit   { background: rgba(255,69,0,0.14); }
-    .li-fb       { background: rgba(24,119,242,0.14); }
-    .li-github   { background: rgba(255,255,255,0.07); }
-    .li-gitlab   { background: rgba(252,109,38,0.14); }
-    .li-linkedin { background: rgba(10,102,194,0.14); }
-    .li-modrinth { background: rgba(27,217,106,0.14); }
-    .li-curse    { background: rgba(241,100,54,0.14); }
-    .li-namemc   { background: rgba(0,234,255,0.09); }
-    .li-copper   { background: rgba(0,234,255,0.09); }
+    .card-info { min-width: 0; flex: 1; }
 
-    .link-info { overflow: hidden; }
-
-    .link-name {
-      font-family: 'Syne', sans-serif;
-      font-size: 0.88rem;
-      font-weight: 700;
+    .card-name {
+      font-family: 'Archivo Black', sans-serif;
+      font-size: 0.82rem;
+      font-weight: 900;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
     }
 
-    .link-handle {
-      font-size: 0.72rem;
+    .card-sub {
+      font-size: 0.68rem;
       color: var(--muted);
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
+      margin-top: 1px;
     }
 
-    .divider { height: 1px; background: var(--border); }
+    /* brand bg tints */
+    .i-yt      { background: rgba(255,0,0,0.12); }
+    .i-twitch  { background: rgba(145,71,255,0.12); }
+    .i-tiktok  { background: rgba(255,255,255,0.06); }
+    .i-patreon { background: rgba(255,66,77,0.12); }
+    .i-x       { background: rgba(255,255,255,0.06); }
+    .i-bsky    { background: rgba(0,133,255,0.12); }
+    .i-ig      { background: rgba(225,48,108,0.12); }
+    .i-discord { background: rgba(88,101,242,0.12); }
+    .i-reddit  { background: rgba(255,69,0,0.12); }
+    .i-fb      { background: rgba(24,119,242,0.12); }
+    .i-github  { background: rgba(255,255,255,0.06); }
+    .i-gitlab  { background: rgba(252,109,38,0.12); }
+    .i-modrinth{ background: rgba(27,217,106,0.12); }
+    .i-curse   { background: rgba(241,100,54,0.12); }
+    .i-namemc  { background: rgba(212,130,74,0.1); }
+    .i-copper  { background: rgba(212,130,74,0.1); }
+    .i-kofi    { background: rgba(255,90,22,0.12); }
 
+    /* ── FOOTER ── */
     footer {
-      padding: 40px 0;
-      text-align: center;
-      font-size: 0.74rem;
+      padding: 36px 0 48px;
+      font-size: 0.7rem;
       color: var(--muted);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 8px;
+      border-top: 1px solid var(--border);
     }
 
-    footer a { color: var(--accent); text-decoration: none; }
+    footer a { color: var(--copper); text-decoration: none; }
+    footer a:hover { text-decoration: underline; }
 
-    .reveal { opacity: 0; transform: translateY(18px); transition: opacity 0.55s ease, transform 0.55s ease; }
-    .reveal.visible { opacity: 1; transform: none; }
+    /* ── FADE IN ── */
+    .sec {
+      opacity: 0;
+      transform: translateY(14px);
+      transition: opacity 0.5s ease, transform 0.5s ease;
+    }
+    .sec.in { opacity: 1; transform: none; }
+    .hero { opacity: 1; transform: none; } /* hero always visible */
+
+    /* ── MOBILE HERO TWEAKS ── */
+    @media (max-width: 400px) {
+      .hero { padding: 40px 0 32px; }
+      .avatar { width: 60px; height: 60px; }
+    }
   </style>
 </head>
 <body>
-<div class="container">
+<div class="wrap">
 
   <!-- HERO -->
   <div class="hero">
-    <div class="avatar-ring">
+    <div class="hero-top">
       <div class="avatar">
         <img src="https://i.imgur.com/IJuHRmx.jpeg" alt="MaxJubayerYT" />
-        <div class="status-dot"></div>
+      </div>
+      <div class="hero-meta">
+        <h1>Max<em>JubayerYT</em></h1>
+        <div class="role-line"><span class="online-dot"></span>Creator · Dev · Gamer</div>
       </div>
     </div>
-    <h1>Max<span>JubayerYT</span></h1>
-    <p class="tagline">Content Creator · Developer · Gamer</p>
-    <p class="bio">
-      Making content, building tools, and breaking games — all at once.
-      Streamer on Twitch, creator on YouTube, and developer behind CopperLauncher.
-    </p>
-    <div class="badges">
-      <span class="badge">Minecraft Modder</span>
-      <span class="badge">Open Source developer</span>
-      <span class="badge">Content Creator</span>
+    <p class="bio">Making content, building tools, and breaking games — all at once. Streamer on Twitch, creator on YouTube, and the dev behind CopperLauncher.</p>
+    <div class="tags">
+      <span class="tag">Minecraft Modder</span>
+      <span class="tag">Open Source</span>
+      <span class="tag">Content Creator</span>
+      <span class="tag">Android Dev</span>
     </div>
   </div>
 
-  <div class="divider"></div>
+  <hr class="rule" />
 
   <!-- FEATURED PROJECT -->
-  <section class="reveal">
-    <div class="section-label">Featured Project</div>
-    <a href="https://copperlauncher.github.io/" target="_blank" class="featured-card">
-      <div class="featured-icon">
-        <img src="https://raw.githubusercontent.com/CopperLauncher/CopperLauncher/refs/heads/v3_openjdk/app_pojavlauncher/src/main/assets/amethyst.png" alt="GitHub" />
+  <div class="sec">
+    <div class="sec-head">Featured Project</div>
+    <a href="https://copperlauncher.github.io/" target="_blank" class="feat">
+      <div class="feat-icon">
+        <img src="https://raw.githubusercontent.com/CopperLauncher/CopperLauncher/refs/heads/v3_openjdk/app_pojavlauncher/src/main/assets/amethyst.png" alt="CopperLauncher" />
       </div>
-      <div class="featured-info">
+      <div class="feat-body">
         <h3>CopperLauncher</h3>
-        <p>A custom Minecraft launcher built from scratch. Open-source and available on GitHub.</p>
+        <p>Custom Minecraft: Java Edition launcher for Android. Open-source on GitHub.</p>
       </div>
-      <div class="featured-arrow">→</div>
+      <div class="feat-arrow">→</div>
     </a>
-  </section>
+  </div>
 
-  <div class="divider"></div>
+  <hr class="rule" />
 
   <!-- CONTENT & STREAMING -->
-  <section class="reveal">
-    <div class="section-label">Content &amp; Streaming</div>
-    <div class="links-grid">
+  <div class="sec">
+    <div class="sec-head">Content &amp; Streaming</div>
+    <div class="grid">
 
-      <a href="https://www.youtube.com/@MaxJubayerYT" target="_blank" class="link-card">
-        <div class="link-icon li-yt">
-          <img src="https://cdn.simpleicons.org/youtube/ff0000" alt="YouTube" />
-        </div>
-        <div class="link-info">
-          <div class="link-name">YouTube</div>
-          <div class="link-handle">@MaxJubayerYT</div>
+      <a href="https://www.youtube.com/@MaxJubayerYT" target="_blank" class="card">
+        <div class="icon i-yt"><img src="https://cdn.simpleicons.org/youtube/ff0000" alt="" /></div>
+        <div class="card-info">
+          <div class="card-name">YouTube</div>
+          <div class="card-sub">@MaxJubayerYT</div>
         </div>
       </a>
 
-      <a href="https://www.twitch.tv/maxjubayeryt" target="_blank" class="link-card">
-        <div class="link-icon li-twitch">
-          <img src="https://cdn.simpleicons.org/twitch/9147ff" alt="Twitch" />
-        </div>
-        <div class="link-info">
-          <div class="link-name">Twitch</div>
-          <div class="link-handle">maxjubayeryt</div>
+      <a href="https://www.twitch.tv/maxjubayeryt" target="_blank" class="card">
+        <div class="icon i-twitch"><img src="https://cdn.simpleicons.org/twitch/9147ff" alt="" /></div>
+        <div class="card-info">
+          <div class="card-name">Twitch</div>
+          <div class="card-sub">maxjubayeryt</div>
         </div>
       </a>
 
-      <a href="https://www.tiktok.com/@maxjubayeryt" target="_blank" class="link-card">
-        <div class="link-icon li-tiktok">
-          <img src="https://cdn.simpleicons.org/tiktok/ffffff" alt="TikTok" />
-        </div>
-        <div class="link-info">
-          <div class="link-name">TikTok</div>
-          <div class="link-handle">@maxjubayeryt</div>
+      <a href="https://www.tiktok.com/@maxjubayeryt" target="_blank" class="card">
+        <div class="icon i-tiktok"><img src="https://cdn.simpleicons.org/tiktok/ffffff" alt="" /></div>
+        <div class="card-info">
+          <div class="card-name">TikTok</div>
+          <div class="card-sub">@maxjubayeryt</div>
         </div>
       </a>
 
-      <a href="https://ko-fi.com/maxjubayeryt" target="_blank" class="link-card">
-        <div class="link-icon li-ko-fi">
-          <img src="https://cdn.simpleicons.org/kofi/ff5a16" alt="Ko-fi" />
+      <a href="https://ko-fi.com/maxjubayeryt" target="_blank" class="card">
+        <div class="icon i-kofi"><img src="https://cdn.simpleicons.org/kofi/ff5a16" alt="" /></div>
+        <div class="card-info">
+          <div class="card-name">Ko-fi</div>
+          <div class="card-sub">MaxJubayerYT</div>
         </div>
-        <div class="link-info">
-          <div class="link-name">Ko-fi</div>
-          <div class="link-handle">MaxJubayerYT</div>
-        </div>
-     </a>
+      </a>
 
-      <a href="https://patreon.com/MaxJubayerYT" target="_blank" class="link-card">
-        <div class="link-icon li-patreon">
-          <img src="https://cdn.simpleicons.org/patreon/ff424d" alt="Patreon" />
-        </div>
-        <div class="link-info">
-          <div class="link-name">Patreon</div>
-          <div class="link-handle">MaxJubayerYT</div>
+      <a href="https://patreon.com/MaxJubayerYT" target="_blank" class="card">
+        <div class="icon i-patreon"><img src="https://cdn.simpleicons.org/patreon/ff424d" alt="" /></div>
+        <div class="card-info">
+          <div class="card-name">Patreon</div>
+          <div class="card-sub">MaxJubayerYT</div>
         </div>
       </a>
 
     </div>
-  </section>
+  </div>
 
-  <div class="divider"></div>
+  <hr class="rule" />
 
   <!-- SOCIAL -->
-  <section class="reveal">
-    <div class="section-label">Social</div>
-    <div class="links-grid">
+  <div class="sec">
+    <div class="sec-head">Social</div>
+    <div class="grid">
 
-      <a href="https://x.com/MaxJubayerYT" target="_blank" class="link-card">
-        <div class="link-icon li-x">
-          <img src="https://cdn.simpleicons.org/x/ffffff" alt="X" />
-        </div>
-        <div class="link-info">
-          <div class="link-name">X / Twitter</div>
-          <div class="link-handle">@MaxJubayerYT</div>
+      <a href="https://x.com/MaxJubayerYT" target="_blank" class="card">
+        <div class="icon i-x"><img src="https://cdn.simpleicons.org/x/ffffff" alt="" /></div>
+        <div class="card-info">
+          <div class="card-name">X / Twitter</div>
+          <div class="card-sub">@MaxJubayerYT</div>
         </div>
       </a>
 
-      <a href="https://bsky.app/profile/maxjubayeryt.bsky.social" target="_blank" class="link-card">
-        <div class="link-icon li-bsky">
-          <img src="https://cdn.simpleicons.org/bluesky/0085ff" alt="Bluesky" />
-        </div>
-        <div class="link-info">
-          <div class="link-name">Bluesky</div>
-          <div class="link-handle">maxjubayeryt.bsky.social</div>
+      <a href="https://bsky.app/profile/maxjubayeryt.bsky.social" target="_blank" class="card">
+        <div class="icon i-bsky"><img src="https://cdn.simpleicons.org/bluesky/0085ff" alt="" /></div>
+        <div class="card-info">
+          <div class="card-name">Bluesky</div>
+          <div class="card-sub">maxjubayeryt.bsky.social</div>
         </div>
       </a>
 
-      <a href="https://www.instagram.com/maxjubayeryt/" target="_blank" class="link-card">
-        <div class="link-icon li-ig">
-          <img src="https://cdn.simpleicons.org/instagram/e1306c" alt="Instagram" />
-        </div>
-        <div class="link-info">
-          <div class="link-name">Instagram</div>
-          <div class="link-handle">@maxjubayeryt</div>
+      <a href="https://www.instagram.com/maxjubayeryt/" target="_blank" class="card">
+        <div class="icon i-ig"><img src="https://cdn.simpleicons.org/instagram/e1306c" alt="" /></div>
+        <div class="card-info">
+          <div class="card-name">Instagram</div>
+          <div class="card-sub">@maxjubayeryt</div>
         </div>
       </a>
 
-      <a href="https://discord.com/invite/r8wUtzMzUe" target="_blank" class="link-card">
-        <div class="link-icon li-discord">
-          <img src="https://cdn.simpleicons.org/discord/5865f2" alt="Discord" />
-        </div>
-        <div class="link-info">
-          <div class="link-name">Discord</div>
-          <div class="link-handle">Join the server</div>
+      <a href="https://discord.com/invite/r8wUtzMzUe" target="_blank" class="card">
+        <div class="icon i-discord"><img src="https://cdn.simpleicons.org/discord/5865f2" alt="" /></div>
+        <div class="card-info">
+          <div class="card-name">Discord</div>
+          <div class="card-sub">Join the server</div>
         </div>
       </a>
 
-      <a href="http://reddit.com/r/MaxJubayerYT" target="_blank" class="link-card">
-        <div class="link-icon li-reddit">
-          <img src="https://cdn.simpleicons.org/reddit/ff4500" alt="Reddit" />
-        </div>
-        <div class="link-info">
-          <div class="link-name">Reddit</div>
-          <div class="link-handle">r/MaxJubayerYT</div>
+      <a href="https://www.reddit.com/r/MaxJubayerYT" target="_blank" class="card">
+        <div class="icon i-reddit"><img src="https://cdn.simpleicons.org/reddit/ff4500" alt="" /></div>
+        <div class="card-info">
+          <div class="card-name">Reddit</div>
+          <div class="card-sub">r/MaxJubayerYT</div>
         </div>
       </a>
 
-      <a href="https://www.facebook.com/maxjubayer.yt.2025" target="_blank" class="link-card">
-        <div class="link-icon li-fb">
-          <img src="https://cdn.simpleicons.org/facebook/1877f2" alt="Facebook" />
-        </div>
-        <div class="link-info">
-          <div class="link-name">Facebook</div>
-          <div class="link-handle">maxjubayer.yt.2025</div>
+      <a href="https://www.facebook.com/maxjubayer.yt.2025" target="_blank" class="card">
+        <div class="icon i-fb"><img src="https://cdn.simpleicons.org/facebook/1877f2" alt="" /></div>
+        <div class="card-info">
+          <div class="card-name">Facebook</div>
+          <div class="card-sub">maxjubayer.yt.2025</div>
         </div>
       </a>
 
     </div>
-  </section>
+  </div>
 
-  <div class="divider"></div>
+  <hr class="rule" />
 
   <!-- DEV & GAMING -->
-  <section class="reveal">
-    <div class="section-label">Dev &amp; Gaming</div>
-    <div class="links-grid">
+  <div class="sec">
+    <div class="sec-head">Dev &amp; Gaming</div>
+    <div class="grid">
 
-      <a href="https://github.com/MaxJubayerYT" target="_blank" class="link-card">
-        <div class="link-icon li-github">
-          <img src="https://cdn.simpleicons.org/github/ffffff" alt="GitHub" />
-        </div>
-        <div class="link-info">
-          <div class="link-name">GitHub</div>
-          <div class="link-handle">MaxJubayerYT</div>
+      <a href="https://github.com/MaxJubayerYT" target="_blank" class="card">
+        <div class="icon i-github"><img src="https://cdn.simpleicons.org/github/ffffff" alt="" /></div>
+        <div class="card-info">
+          <div class="card-name">GitHub</div>
+          <div class="card-sub">MaxJubayerYT</div>
         </div>
       </a>
 
-      <a href="https://github.com/CopperLauncher/CopperLauncher" target="_blank" class="link-card">
-        <div class="link-icon li-copper">
-          <img src="https://cdn.simpleicons.org/github/00eaff" alt="CopperLauncher" />
-        </div>
-        <div class="link-info">
-          <div class="link-name">CopperLauncher</div>
-          <div class="link-handle">GitHub Repo</div>
+      <a href="https://github.com/CopperLauncher/CopperLauncher" target="_blank" class="card">
+        <div class="icon i-copper"><img src="https://cdn.simpleicons.org/github/d4824a" alt="" /></div>
+        <div class="card-info">
+          <div class="card-name">CopperLauncher</div>
+          <div class="card-sub">GitHub Repo</div>
         </div>
       </a>
 
-      <a href="https://gitlab.com/maxjubayeryt" target="_blank" class="link-card">
-        <div class="link-icon li-gitlab">
-          <img src="https://cdn.simpleicons.org/gitlab/fc6d26" alt="GitLab" />
-        </div>
-        <div class="link-info">
-          <div class="link-name">GitLab</div>
-          <div class="link-handle">maxjubayeryt</div>
+      <a href="https://gitlab.com/maxjubayeryt" target="_blank" class="card">
+        <div class="icon i-gitlab"><img src="https://cdn.simpleicons.org/gitlab/fc6d26" alt="" /></div>
+        <div class="card-info">
+          <div class="card-name">GitLab</div>
+          <div class="card-sub">maxjubayeryt</div>
         </div>
       </a>
 
-      <a href="https://modrinth.com/user/MaxJubayerYT" target="_blank" class="link-card">
-        <div class="link-icon li-modrinth">
-          <img src="https://cdn.simpleicons.org/modrinth/1bd96a" alt="Modrinth" />
-        </div>
-        <div class="link-info">
-          <div class="link-name">Modrinth</div>
-          <div class="link-handle">MaxJubayerYT</div>
+      <a href="https://modrinth.com/user/MaxJubayerYT" target="_blank" class="card">
+        <div class="icon i-modrinth"><img src="https://cdn.simpleicons.org/modrinth/1bd96a" alt="" /></div>
+        <div class="card-info">
+          <div class="card-name">Modrinth</div>
+          <div class="card-sub">MaxJubayerYT</div>
         </div>
       </a>
 
-      <a href="https://www.curseforge.com/members/maxjubayeryt/projects" target="_blank" class="link-card">
-        <div class="link-icon li-curse">
-          <img src="https://cdn.simpleicons.org/curseforge/f16436" alt="CurseForge" />
-        </div>
-        <div class="link-info">
-          <div class="link-name">CurseForge</div>
-          <div class="link-handle">maxjubayeryt</div>
+      <a href="https://www.curseforge.com/members/maxjubayeryt/projects" target="_blank" class="card">
+        <div class="icon i-curse"><img src="https://cdn.simpleicons.org/curseforge/f16436" alt="" /></div>
+        <div class="card-info">
+          <div class="card-name">CurseForge</div>
+          <div class="card-sub">maxjubayeryt</div>
         </div>
       </a>
 
-      <a href="https://namemc.com/profile/MaxJubayerYT" target="_blank" class="link-card">
-        <div class="link-icon li-namemc">
-          <!-- NameMC has no Simple Icons entry; using a Minecraft-style block icon -->
+      <a href="https://namemc.com/profile/MaxJubayerYT" target="_blank" class="card">
+        <div class="icon i-namemc">
           <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <rect x="3" y="3" width="8" height="8" rx="1" fill="#00eaff" opacity="0.9"/>
-            <rect x="13" y="3" width="8" height="8" rx="1" fill="#00eaff" opacity="0.6"/>
-            <rect x="3" y="13" width="8" height="8" rx="1" fill="#00eaff" opacity="0.6"/>
-            <rect x="13" y="13" width="8" height="8" rx="1" fill="#00eaff" opacity="0.35"/>
+            <rect x="3" y="3" width="8" height="8" rx="1" fill="#d4824a" opacity="0.9"/>
+            <rect x="13" y="3" width="8" height="8" rx="1" fill="#d4824a" opacity="0.55"/>
+            <rect x="3" y="13" width="8" height="8" rx="1" fill="#d4824a" opacity="0.55"/>
+            <rect x="13" y="13" width="8" height="8" rx="1" fill="#d4824a" opacity="0.28"/>
           </svg>
         </div>
-        <div class="link-info">
-          <div class="link-name">NameMC</div>
-          <div class="link-handle">MaxJubayerYT</div>
+        <div class="card-info">
+          <div class="card-name">NameMC</div>
+          <div class="card-sub">MaxJubayerYT</div>
         </div>
       </a>
 
     </div>
-  </section>
-
-  <div class="divider"></div>
+  </div>
 
   <footer>
-    <p>© 2025 MaxJubayerYT · All rights reserved</p>
-    <p style="margin-top:8px">Always a free developer · <a href="https://www.youtube.com/@MaxJubayerYT">Subscribe on YouTube</a></p>
+    <span>© 2025 MaxJubayerYT</span>
+    <a href="https://www.youtube.com/@MaxJubayerYT">Subscribe on YouTube</a>
   </footer>
 
 </div>
 
 <script>
-  const obs = new IntersectionObserver(entries => {
-    entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
-  }, { threshold: 0.08 });
-  document.querySelectorAll('.reveal').forEach(el => obs.observe(el));
+  const io = new IntersectionObserver(entries => {
+    entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } });
+  }, { threshold: 0.06 });
+  document.querySelectorAll('.sec').forEach(el => io.observe(el));
 </script>
 </body>
 </html>
