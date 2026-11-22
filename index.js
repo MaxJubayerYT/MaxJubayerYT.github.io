@@ -138,9 +138,7 @@
      Modrinth: sum of project downloads. GitHub: sum of release asset downloads.
      Cached for 1 hour. Badges stay hidden if the APIs fail. */
   function fmt(n) {
-    if (n >= 1e6) return (n / 1e6).toFixed(n >= 1e7 ? 0 : 1).replace(/\.0$/, "") + "M";
-    if (n >= 1e3) return (n / 1e3).toFixed(n >= 1e4 ? 0 : 1).replace(/\.0$/, "") + "K";
-    return String(n);
+    return String(Math.round(n)).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
   }
   function showDl(el, n) {
     if (typeof n !== "number" || n < 0) return;
@@ -165,16 +163,24 @@
           .then(function (list) { var m = {}; list.forEach(function (p) { m[p.id] = p.downloads; }); return m; });
       }, function (m) { mrEls.forEach(function (e) { showDl(e, m[e.getAttribute("data-mr")]); }); });
     }
-    $$("[data-gh]").forEach(function (el) {
-      var repo = el.getAttribute("data-gh");
-      cached("max.dl.gh." + repo, function () {
-        return fetch("https://api.github.com/repos/" + repo + "/releases?per_page=100")
+    function repoTotal(repo) {
+      var sum = 0;
+      function page(p) {
+        return fetch("https://api.github.com/repos/" + repo + "/releases?per_page=100&page=" + p)
           .then(function (r) { if (!r.ok) throw new Error("HTTP " + r.status); return r.json(); })
           .then(function (rel) {
-            var sum = 0;
             rel.forEach(function (x) { (x.assets || []).forEach(function (a) { sum += a.download_count || 0; }); });
-            return sum;
+            return rel.length === 100 && p < 5 ? page(p + 1) : sum;
           });
+      }
+      return page(1);
+    }
+    $$("[data-gh]").forEach(function (el) {
+      var repos = el.getAttribute("data-gh").split(",");
+      cached("max.dl.gh2." + repos.join("+"), function () {
+        return Promise.all(repos.map(repoTotal)).then(function (t) {
+          return t.reduce(function (a, b) { return a + b; }, 0);
+        });
       }, function (n) { showDl(el, n); });
     });
   }

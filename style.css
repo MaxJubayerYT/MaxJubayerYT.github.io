@@ -639,8 +639,6 @@ Mobile tile fix + download counts
 ========================================================================== */
 .card, .card > div, .ccard, .ccard > div { min-width: 0; max-width: 100%; }
 .card h3, .card p { overflow-wrap: anywhere; }
-.card--wide { grid-column: 1 / -1; }
-.card--band { grid-column: 1 / -1; }
 @media (max-width: 51.99rem) {
 .card { padding: 1.25rem; gap: 1rem; }
 .card h3 { font-size: 1.1875rem; }
