@@ -325,8 +325,8 @@ Introduction (two-up)
 /* ==========================================================================
 Features — bento
 ========================================================================== */
-.bento { display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.5rem; }
-@media (min-width: 52rem) { .bento { grid-template-columns: repeat(4, 1fr); } }
+.bento { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.5rem; }
+@media (min-width: 52rem) { .bento { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
 .card {
 display: flex; flex-direction: column; justify-content: space-between; align-items: flex-start; gap: 2.5rem;
 padding: 1.75rem; border-radius: var(--r-xl);
@@ -633,3 +633,22 @@ to   { border-radius: 56% 44% 42% 58% / 54% 56% 44% 46%; }
 .proj-icon { width: 4rem; height: 4rem; border-radius: var(--r-lg); object-fit: cover; flex-shrink: 0; background: var(--c-surface-high); box-shadow: var(--e1); }
 .proj-icon--lg { width: 5rem; height: 5rem; border-radius: var(--r-xl); }
 .card--band .chips { flex-wrap: wrap; }
+
+/* ==========================================================================
+Mobile tile fix + download counts
+========================================================================== */
+.card, .card > div, .ccard, .ccard > div { min-width: 0; max-width: 100%; }
+.card h3, .card p { overflow-wrap: anywhere; }
+.card--wide { grid-column: 1 / -1; }
+.card--band { grid-column: 1 / -1; }
+@media (max-width: 51.99rem) {
+.card { padding: 1.25rem; gap: 1rem; }
+.card h3 { font-size: 1.1875rem; }
+.card--wide { flex-direction: column; }
+.card--band .chips { margin-left: 0; }
+.proj-icon--lg { width: 4rem; height: 4rem; }
+}
+.dl { display: inline-flex; align-items: center; gap: 0.375rem; margin-top: 0.75rem; padding: 0.25rem 0.625rem; border-radius: 999px; font-size: 0.8125rem; font-weight: 600; background: color-mix(in srgb, currentColor 14%, transparent); }
+.dl[hidden] { display: none; }
+.chips .dl { margin-top: 0; padding: 0; background: none; }
+.dl .icon { width: 1rem; height: 1rem; }

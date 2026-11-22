@@ -133,4 +133,49 @@
       })
       .catch(function () {});
   }
+
+  /* ------------------------------------------------- Download counts
+     Modrinth: sum of project downloads. GitHub: sum of release asset downloads.
+     Cached for 1 hour. Badges stay hidden if the APIs fail. */
+  function fmt(n) {
+    if (n >= 1e6) return (n / 1e6).toFixed(n >= 1e7 ? 0 : 1).replace(/\.0$/, "") + "M";
+    if (n >= 1e3) return (n / 1e3).toFixed(n >= 1e4 ? 0 : 1).replace(/\.0$/, "") + "K";
+    return String(n);
+  }
+  function showDl(el, n) {
+    if (typeof n !== "number" || n < 0) return;
+    var t = $(".dl__n", el);
+    if (t) t.textContent = fmt(n);
+    el.hidden = false;
+  }
+  function cached(key, load, apply) {
+    var raw = store(key), hit = null;
+    try { hit = raw ? JSON.parse(raw) : null; } catch (e) {}
+    if (hit && Date.now() - hit.t < 3600000) { apply(hit.v); return; }
+    load().then(function (v) { store(key, JSON.stringify({ t: Date.now(), v: v })); apply(v); })
+      .catch(function () { if (hit) apply(hit.v); });
+  }
+  if (window.fetch) {
+    var mrEls = $$("[data-mr]");
+    if (mrEls.length) {
+      var ids = mrEls.map(function (e) { return e.getAttribute("data-mr"); });
+      cached("max.dl.mr", function () {
+        return fetch("https://api.modrinth.com/v2/projects?ids=" + encodeURIComponent(JSON.stringify(ids)))
+          .then(function (r) { if (!r.ok) throw new Error("HTTP " + r.status); return r.json(); })
+          .then(function (list) { var m = {}; list.forEach(function (p) { m[p.id] = p.downloads; }); return m; });
+      }, function (m) { mrEls.forEach(function (e) { showDl(e, m[e.getAttribute("data-mr")]); }); });
+    }
+    $$("[data-gh]").forEach(function (el) {
+      var repo = el.getAttribute("data-gh");
+      cached("max.dl.gh." + repo, function () {
+        return fetch("https://api.github.com/repos/" + repo + "/releases?per_page=100")
+          .then(function (r) { if (!r.ok) throw new Error("HTTP " + r.status); return r.json(); })
+          .then(function (rel) {
+            var sum = 0;
+            rel.forEach(function (x) { (x.assets || []).forEach(function (a) { sum += a.download_count || 0; }); });
+            return sum;
+          });
+      }, function (n) { showDl(el, n); });
+    });
+  }
 })();

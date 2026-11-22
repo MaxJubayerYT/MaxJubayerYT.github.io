@@ -2,7 +2,7 @@
 
 Static, single-page profile site for MaxJubayerYT. Material 3 Expressive, blue/aqua theme, light and dark mode.
 
-Style based on the [Copper Launcher website](https://github.com/CopperLauncher/copperlauncher.github.io).
+Style based on the [Copper Launcher website](https://copper.maxjubayeryt.com/).
 
 ## Files
 
