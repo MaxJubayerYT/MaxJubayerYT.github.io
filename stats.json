@@ -1,0 +1,15 @@
+{
+  "_note": "Numbers for platforms that have no public API a static page can call. Set a number to show it on the Links tab, or null to hide it. Live (GitHub, Bluesky, Discord, Modrinth) are fetched automatically and override nothing here unless the live request fails.",
+  "updated": "",
+  "youtube": null,
+  "twitch": null,
+  "x": null,
+  "tiktok": null,
+  "instagram": null,
+  "patreon": null,
+  "namemc": null,
+  "curseforge": null,
+  "github": null,
+  "bluesky": null,
+  "discord": null
+}

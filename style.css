@@ -650,3 +650,9 @@ Mobile tile fix + download counts
 .dl[hidden] { display: none; }
 .chips .dl { margin-top: 0; padding: 0; background: none; }
 .dl .icon { width: 1rem; height: 1rem; }
+
+/* Separate PojavLauncher card, half-width modpack row, stat badges */
+@media (min-width: 52rem) { .card--half { grid-column: span 2; } }
+.dl--err { opacity: 0.85; font-style: italic; }
+.dl--err .icon { display: none; }
+.ccard .dl.stat { margin-top: 0.625rem; padding: 0.25rem 0.625rem; }

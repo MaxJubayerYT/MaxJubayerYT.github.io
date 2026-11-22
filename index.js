@@ -1,5 +1,5 @@
 /* MaxJubayerYT site - behaviour
-   Theme toggle, scroll-spy, reveal on scroll, copy buttons, GitHub stats.
+   Theme toggle, scroll-spy, reveal on scroll, copy buttons, live counts.
    No dependencies. */
 (function () {
   "use strict";
@@ -114,15 +114,52 @@
     document.body.removeChild(ta);
   }
 
-  /* ------------------------------------------------------ GitHub stats
-     Optional. If the API is unreachable or rate-limited the block stays hidden. */
-  var stats = $("#ghStats");
-  if (stats && window.fetch) {
-    fetch("https://api.github.com/users/" + USER)
-      .then(function (r) { if (!r.ok) throw new Error("HTTP " + r.status); return r.json(); })
-      .then(function (u) {
-        var items = [[u.followers, "followers"], [u.public_repos, "public repos"]];
-        items.forEach(function (it) {
+  /* ------------------------------------------------------ Live counts
+     Everything goes through getJSON so a URL is only requested once per page.
+     Results are cached for 1 hour. If a request fails and nothing is cached the
+     badge shows "API limit reached" (HTTP 403/429) or "Unavailable". */
+  var memo = {};
+  function getJSON(url) {
+    if (!memo[url]) memo[url] = fetch(url).then(function (r) {
+      if (!r.ok) { var e = new Error("HTTP " + r.status); e.status = r.status; throw e; }
+      return r.json();
+    });
+    return memo[url];
+  }
+  function fmt(n) { return String(Math.round(n)).replace(/\B(?=(\d{3})+(?!\d))/g, ","); }
+  function showDl(el, text) {
+    var t = $(".dl__n", el);
+    if (t) t.textContent = text;
+    el.classList.remove("dl--err");
+    el.hidden = false;
+  }
+  function showErr(el, e) {
+    var t = $(".dl__n", el);
+    if (t) t.textContent = (e && (e.status === 403 || e.status === 429)) ? "API limit reached" : "Unavailable";
+    el.classList.add("dl--err");
+    el.hidden = false;
+  }
+  function cached(key, load, apply, fail) {
+    var raw = store(key), hit = null;
+    try { hit = raw ? JSON.parse(raw) : null; } catch (e) {}
+    if (hit && Date.now() - hit.t < 3600000) { apply(hit.v); return; }
+    load().then(function (v) { store(key, JSON.stringify({ t: Date.now(), v: v })); apply(v); })
+      .catch(function (e) { if (hit) apply(hit.v); else fail(e); });
+  }
+
+  if (window.fetch) {
+    var manual = fetch("stats.json", { cache: "no-cache" })
+      .then(function (r) { return r.ok ? r.json() : {}; })
+      .catch(function () { return {}; });
+    var UNITS = { youtube: "subscribers", twitch: "followers", x: "followers", tiktok: "followers",
+      instagram: "followers", patreon: "patrons", namemc: "likes", curseforge: "downloads",
+      github: "followers", bluesky: "followers", discord: "members" };
+
+    /* GitHub follower/repo chips in the About section (quiet: hidden on failure) */
+    var stats = $("#ghStats");
+    if (stats) {
+      getJSON("https://api.github.com/users/" + USER).then(function (u) {
+        [[u.followers, "followers"], [u.public_repos, "public repos"]].forEach(function (it) {
           if (typeof it[0] !== "number") return;
           var c = document.createElement("span");
           c.className = "chip chip--round";
@@ -130,44 +167,46 @@
           stats.appendChild(c);
         });
         if (stats.childNodes.length) stats.hidden = false;
-      })
-      .catch(function () {});
-  }
+      }).catch(function () {});
+    }
 
-  /* ------------------------------------------------- Download counts
-     Modrinth: sum of project downloads. GitHub: sum of release asset downloads.
-     Cached for 1 hour. Badges stay hidden if the APIs fail. */
-  function fmt(n) {
-    return String(Math.round(n)).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-  }
-  function showDl(el, n) {
-    if (typeof n !== "number" || n < 0) return;
-    var t = $(".dl__n", el);
-    if (t) t.textContent = fmt(n);
-    el.hidden = false;
-  }
-  function cached(key, load, apply) {
-    var raw = store(key), hit = null;
-    try { hit = raw ? JSON.parse(raw) : null; } catch (e) {}
-    if (hit && Date.now() - hit.t < 3600000) { apply(hit.v); return; }
-    load().then(function (v) { store(key, JSON.stringify({ t: Date.now(), v: v })); apply(v); })
-      .catch(function () { if (hit) apply(hit.v); });
-  }
-  if (window.fetch) {
+    /* Modrinth: per-project counts on the cards */
     var mrEls = $$("[data-mr]");
     if (mrEls.length) {
       var ids = mrEls.map(function (e) { return e.getAttribute("data-mr"); });
-      cached("max.dl.mr", function () {
-        return fetch("https://api.modrinth.com/v2/projects?ids=" + encodeURIComponent(JSON.stringify(ids)))
-          .then(function (r) { if (!r.ok) throw new Error("HTTP " + r.status); return r.json(); })
+      cached("max.v3.mr", function () {
+        return getJSON("https://api.modrinth.com/v2/projects?ids=" + encodeURIComponent(JSON.stringify(ids)))
           .then(function (list) { var m = {}; list.forEach(function (p) { m[p.id] = p.downloads; }); return m; });
-      }, function (m) { mrEls.forEach(function (e) { showDl(e, m[e.getAttribute("data-mr")]); }); });
+      }, function (m) {
+        mrEls.forEach(function (e) {
+          var n = m[e.getAttribute("data-mr")];
+          if (typeof n === "number") showDl(e, fmt(n) + " downloads"); else showErr(e, null);
+        });
+      }, function (err) { mrEls.forEach(function (e) { showErr(e, err); }); });
     }
+
+    /* Modrinth: combined totals over all of the user's projects */
+    var mrTotals = $$("[data-mr-total]"), mrStat = $$('[data-stat="modrinth"]');
+    if (mrTotals.length || mrStat.length) {
+      cached("max.v3.mruser", function () {
+        return getJSON("https://api.modrinth.com/v2/user/" + USER + "/projects").then(function (list) {
+          var d = 0, f = 0;
+          list.forEach(function (p) { d += p.downloads || 0; f += p.followers || 0; });
+          return { d: d, f: f };
+        });
+      }, function (t) {
+        mrTotals.forEach(function (e) { showDl(e, fmt(t.d) + " total Modrinth downloads"); });
+        mrStat.forEach(function (e) { showDl(e, fmt(t.d) + " downloads, " + fmt(t.f) + " followers"); });
+      }, function (err) {
+        mrTotals.concat(mrStat).forEach(function (e) { showErr(e, err); });
+      });
+    }
+
+    /* GitHub: total release downloads per repo */
     function repoTotal(repo) {
       var sum = 0;
       function page(p) {
-        return fetch("https://api.github.com/repos/" + repo + "/releases?per_page=100&page=" + p)
-          .then(function (r) { if (!r.ok) throw new Error("HTTP " + r.status); return r.json(); })
+        return getJSON("https://api.github.com/repos/" + repo + "/releases?per_page=100&page=" + p)
           .then(function (rel) {
             rel.forEach(function (x) { (x.assets || []).forEach(function (a) { sum += a.download_count || 0; }); });
             return rel.length === 100 && p < 5 ? page(p + 1) : sum;
@@ -176,12 +215,42 @@
       return page(1);
     }
     $$("[data-gh]").forEach(function (el) {
-      var repos = el.getAttribute("data-gh").split(",");
-      cached("max.dl.gh2." + repos.join("+"), function () {
-        return Promise.all(repos.map(repoTotal)).then(function (t) {
-          return t.reduce(function (a, b) { return a + b; }, 0);
+      var repo = el.getAttribute("data-gh");
+      cached("max.v3.gh." + repo, function () { return repoTotal(repo); },
+        function (n) { showDl(el, fmt(n) + " downloads"); },
+        function (err) { showErr(el, err); });
+    });
+
+    /* Links tab: follower / subscriber counts.
+       Live where a browser-callable public API exists, otherwise from stats.json. */
+    var LIVE = {
+      github: function () {
+        return getJSON("https://api.github.com/users/" + USER).then(function (u) { return u.followers; });
+      },
+      bluesky: function () {
+        return getJSON("https://public.api.bsky.app/xrpc/app.bsky.actor.getProfile?actor=maxjubayeryt.bsky.social")
+          .then(function (p) { return p.followersCount; });
+      },
+      discord: function () {
+        return getJSON("https://discord.com/api/v9/invites/j8GTQv3YvY?with_counts=true")
+          .then(function (i) { return i.approximate_member_count; });
+      }
+    };
+    $$("[data-stat]").forEach(function (el) {
+      var key = el.getAttribute("data-stat");
+      if (key === "modrinth") return;
+      var show = function (n) { showDl(el, fmt(n) + " " + UNITS[key]); };
+      var fromManual = function (err) {
+        manual.then(function (m) {
+          if (typeof m[key] === "number") show(m[key]);
+          else if (err) showErr(el, err);
         });
-      }, function (n) { showDl(el, n); });
+      };
+      if (LIVE[key]) {
+        cached("max.v3.st." + key, function () {
+          return LIVE[key]().then(function (n) { if (typeof n !== "number") throw new Error("bad data"); return n; });
+        }, show, fromManual);
+      } else fromManual(null);
     });
   }
 })();
